@@ -1,4 +1,4 @@
-const main = require('../main/main');
+const printInventory = require('../main/main');
 
 describe('pos', function () {
     var allItems;
