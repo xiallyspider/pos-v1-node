@@ -1,5 +1,5 @@
 
-
+var dataBase = require('./datbase')
 var getCount = function(stringArray){
     let tempArr = []
     stringArray.forEach((type) => {
@@ -28,7 +28,7 @@ var getCount = function(stringArray){
 }
 
 var getPromotionItems = function(objectArray){
-    let promotions = loadPromotions()
+    let promotions = dataBase.loadPromotions()
     let promotionArr = []
     promotions.forEach((promotion) => {
         if (promotion.type === 'BUY_TWO_GET_ONE_FREE') {
@@ -36,7 +36,7 @@ var getPromotionItems = function(objectArray){
             objectArray.forEach((object) => {
                 barcodes.forEach((code) => {
                     if(object.type === code){
-                        let count = parseInt(object.count/2)
+                        let count = parseInt(object.count/3)
                         promotionArr.push({type: code, count: count})
                     }
                 })
@@ -48,14 +48,14 @@ var getPromotionItems = function(objectArray){
 var getPrice = function(objectArray){
     let resultObjArr = []
     let tempArr = []
-    let allItems = loadAllItems()
+    let allItems = dataBase.loadAllItems()
     let promotions = getPromotionItems(objectArray)
     
     allItems.forEach((item) => {
         objectArray.forEach((object) => {
             if(item.barcode === object.type){
                 let price = item.price * object.count
-                tempArr.push({type: object.type, count: object.count, price:price})
+                tempArr.push({type: object.type, unitprice:item.price, count: object.count, price:price})
             }
         })
     })
@@ -63,9 +63,8 @@ var getPrice = function(objectArray){
         let flag = true // 是否把object直接放入
         promotions.forEach((promotion) => {
             if(object.type === promotion.type){
-                let singlePrice = object.price/object.count
-                let price = object.price - singlePrice
-                resultObjArr.push({type: object.type, count: object.count, price:price})
+                let price = object.unitprice * (object.count - parseInt(object.count/3))
+                resultObjArr.push({type: object.type, unitprice:object.price, count: object.count, price:price})
                 flag = false
             }
         })
@@ -78,7 +77,7 @@ var getPrice = function(objectArray){
 }
 var getRestInfo = function(objectArray){
     let result = []
-    let allItems = loadAllItems()
+    let allItems = dataBase.loadAllItems()
     allItems.forEach((item) => {
         objectArray.forEach((object) => {
             if(item.barcode === object.type){
